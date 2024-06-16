@@ -106,10 +106,9 @@ export default function Home() {
     },
   })
 
-  const onSubmit = () => refetch()
+  const onSubmit = useCallback(() => refetch(), [refetch]);
 
-  const debouncedSubmit = debounce(onSubmit, 400)
-  const _debouncedSubmit = useCallback(debouncedSubmit, [])
+  const debouncedSubmit = useCallback(debounce(onSubmit, 400), [onSubmit]);
 
   const applyArrayFilter = ({
     category,
@@ -132,7 +131,7 @@ export default function Home() {
       }))
     }
 
-    _debouncedSubmit()
+    debouncedSubmit()
   }
 
   const minPrice = Math.min(filter.price.range[0], filter.price.range[1])
@@ -155,7 +154,7 @@ export default function Home() {
             <DropdownMenuContent align='end'>
               {SORT_OPTIONS.map((option) => (
                 <button
-                  key={option.name}
+                  key={option.value} // Use value for key here
                   className={cn('text-left w-full block px-4 py-2 text-sm', {
                     'text-gray-900 bg-gray-100': option.value === filter.sort,
                     'text-gray-500': option.value !== filter.sort,
@@ -166,7 +165,7 @@ export default function Home() {
                       sort: option.value,
                     }))
 
-                    _debouncedSubmit()
+                    debouncedSubmit()
                   }}>
                   {option.name}
                 </button>
@@ -285,7 +284,7 @@ export default function Home() {
                               },
                             }))
 
-                            _debouncedSubmit()
+                            debouncedSubmit()
                           }}
                           checked={
                             !filter.price.isCustom &&
@@ -315,7 +314,7 @@ export default function Home() {
                               },
                             }))
 
-                            _debouncedSubmit()
+                            debouncedSubmit()
                           }}
                           checked={filter.price.isCustom}
                           className='h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500'
@@ -357,7 +356,7 @@ export default function Home() {
                             },
                           }))
 
-                          _debouncedSubmit()
+                          debouncedSubmit()
                         }}
                         value={
                           filter.price.isCustom
@@ -381,11 +380,14 @@ export default function Home() {
             {products && products.length === 0 ? (
               <EmptyState />
             ) : products ? (
-              products.map((product) => <Product product={product.metadata!} />)
+              products.map((product) => (
+                <Product
+                  key={product.metadata!.id} // Add a unique key here
+                  product={product.metadata!}
+                />
+              ))
             ) : (
-              new Array(12)
-                .fill(null)
-                .map((_, i) => <ProductSkeleton key={i} />)
+              new Array(12).fill(null).map((_, i) => <ProductSkeleton key={i} />)
             )}
           </ul>
         </div>
